@@ -1,0 +1,11 @@
+{
+  "title": "aryategar-porto",
+  "description": "Portfolio of Arya Tegar, a UI/UX designer and front-end developer crafting clean, user-centered digital experiences.",
+  "robots": {
+    "index": true
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,169 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Inter:Regular';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter:Medium';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter:Semi Bold';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro:Regular';
+  src: url('/fonts/sf-pro.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro:Medium';
+  src: url('/fonts/sf-pro.woff2') format('woff2');
+  font-weight: 510;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sfm: 'SF Pro:Medium', 'Inter:Medium', system-ui, sans-serif;
+  --font-sfr: 'SF Pro:Regular', 'Inter:Regular', system-ui, sans-serif;
+  --font-inter: 'Inter:Regular', system-ui, sans-serif;
+  --font-inter-semi: 'Inter:Semi Bold', system-ui, sans-serif;
+  --color-ink: #060606;
+  --color-mute: #a7a7a7;
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #000;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: var(--font-sfr);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+::selection {
+  background: #fff;
+  color: #000;
+}
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body,
+  a,
+  button,
+  [data-cursor] {
+    cursor: none;
+  }
+  input {
+    cursor: text;
+  }
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    inset 6px 9px 7px -6px rgba(255, 255, 255, 0.85),
+    inset -6px -6px 3px -6px rgba(255, 255, 255, 0.7),
+    inset 3px 0 3px 1px rgba(0, 0, 0, 0.3),
+    0 24px 40px -24px rgba(0, 0, 0, 0.8);
+  transition:
+    background 0.5s var(--ease-lux),
+    border-color 0.5s var(--ease-lux);
+}
+.glass:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.fx-ring {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-sfm);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #000;
+  transition:
+    width 0.45s var(--ease-lux),
+    height 0.45s var(--ease-lux),
+    background 0.45s var(--ease-lux);
+}
+.fx-ring[data-state='link'] {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.fx-ring[data-state='view'] {
+  width: 104px;
+  height: 104px;
+  background: #fff;
+}
+.fx-ring[data-state='text'] {
+  width: 14px;
+  height: 14px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .fx-cursor {
+    display: none;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) rotate(calc(var(--r, 0deg) + 4deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .fx-cursor {
+    display: none;
+  }
+}
