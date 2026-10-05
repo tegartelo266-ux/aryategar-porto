@@ -246,18 +246,28 @@ export function IntroCurtain() {
       aria-hidden
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 2 }}
       onAnimationComplete={() => setDone(true)}
       className="pointer-events-none fixed inset-0 z-[90] grid place-items-center bg-black"
     >
-      <motion.span
-        initial={{ opacity: 0, y: 12, letterSpacing: "0.5em" }}
-        animate={{ opacity: [0, 1, 0], y: [12, 0, -10], letterSpacing: "0.2em" }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="font-sfm text-[clamp(20px,1.8vw,32px)] text-white/70"
-      >
-        ARYA
-      </motion.span>
+      <div className="flex flex-col items-center gap-5">
+        <motion.span
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
+          className="font-sfm text-[clamp(20px,1.8vw,32px)] tracking-[0.35em] text-white/80"
+        >
+          ARYA
+        </motion.span>
+        <div className="h-px w-[min(220px,50vw)] overflow-hidden bg-white/15">
+          <motion.div
+            className="h-full origin-left bg-white/80"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 }
