@@ -237,43 +237,168 @@ export function StarField() {
   return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 -z-10" />;
 }
 
-/** Quick cinematic fade-from-black with the name mark on first load. */
+/**
+ * First-load intro: particles fly in and assemble into the name, with a
+ * progress bar + counter. Adaptive — it finishes once the page is ready
+ * (fonts/images) but never before MIN, and never after MAX.
+ */
 export function IntroCurtain() {
-  const [done, setDone] = useState(false);
+  const [gone, setGone] = useState(false);
+  const [fading, setFading] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const pctRef = useRef<HTMLSpanElement>(null);
+
   useEffect(() => {
-    // Safety net: remove the curtain after the intro even if rAF is throttled.
-    const t = setTimeout(() => setDone(true), 3200);
-    return () => clearTimeout(t);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const MIN = 2000;
+    const MAX = 3800;
+    const start = performance.now();
+    let ready = false;
+    let finished = false;
+    let raf = 0;
+    let cw = 0;
+    let ch = 0;
+    let dpr = 1;
+
+    type Part = { x: number; y: number; sx: number; sy: number; tx: number; ty: number; d: number; s: number };
+    let parts: Part[] = [];
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      setFading(true);
+      window.setTimeout(() => setGone(true), 700);
+    };
+
+    const markReady = () => {
+      ready = true;
+    };
+    if (document.fonts?.ready) document.fonts.ready.then(markReady).catch(markReady);
+    else markReady();
+    window.addEventListener("load", markReady);
+
+    const resize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cw = w;
+      ch = h;
+      canvas.width = Math.max(1, Math.floor(w * dpr));
+      canvas.height = Math.max(1, Math.floor(h * dpr));
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const build = () => {
+      const off = document.createElement("canvas");
+      off.width = Math.max(1, Math.floor(cw));
+      off.height = Math.max(1, Math.floor(ch));
+      const octx = off.getContext("2d");
+      if (!octx) return;
+      const wide = cw / ch > 1.3;
+      const lines = wide ? ["ARYA TEGAR"] : ["ARYA", "TEGAR"];
+      const fs = Math.min(cw * (wide ? 0.13 : 0.24), ch * (wide ? 0.22 : 0.13));
+      octx.fillStyle = "#fff";
+      octx.textAlign = "center";
+      octx.textBaseline = "middle";
+      octx.font = `600 ${fs}px -apple-system, "SF Pro Display", "Inter", sans-serif`;
+      const lh = fs * 1.12;
+      const y0 = ch / 2 - ((lines.length - 1) * lh) / 2;
+      lines.forEach((ln, i) => octx.fillText(ln, cw / 2, y0 + i * lh));
+
+      const data = octx.getImageData(0, 0, off.width, off.height).data;
+      const step = Math.max(3, Math.round(Math.min(cw, ch) / 150));
+      const pts: { x: number; y: number }[] = [];
+      for (let y = 0; y < off.height; y += step) {
+        for (let x = 0; x < off.width; x += step) {
+          if (data[(y * off.width + x) * 4 + 3] > 140) pts.push({ x, y });
+        }
+      }
+      parts = pts.map((pt) => ({
+        tx: pt.x,
+        ty: pt.y,
+        sx: Math.random() * cw,
+        sy: Math.random() * ch,
+        x: 0,
+        y: 0,
+        d: Math.random() * 0.4,
+        s: 1 + Math.random() * 1.4,
+      }));
+    };
+
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const draw = (now: number) => {
+      const elapsed = now - start;
+      const p = Math.min(1, elapsed / MIN);
+      const ep = easeOut(p);
+      const pct = Math.round(ep * 100);
+      if (pctRef.current) pctRef.current.textContent = `${pct}%`;
+      if (barRef.current) barRef.current.style.width = `${pct}%`;
+
+      ctx.clearRect(0, 0, cw, ch);
+      for (const q of parts) {
+        const e = Math.min(1, Math.max(0, (ep - q.d) / (1 - q.d)));
+        const ee = easeOut(e);
+        q.x = q.sx + (q.tx - q.sx) * ee;
+        q.y = q.sy + (q.ty - q.sy) * ee;
+        ctx.fillStyle = `rgba(255,255,255,${(0.15 + ee * 0.8).toFixed(3)})`;
+        ctx.fillRect(q.x, q.y, q.s, q.s);
+      }
+
+      if ((ready && elapsed >= MIN) || elapsed >= MAX) {
+        finish();
+        return;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize();
+    build();
+    const onResize = () => {
+      resize();
+      build();
+    };
+    window.addEventListener("resize", onResize);
+
+    if (reduce) {
+      finish();
+    } else {
+      raf = requestAnimationFrame(draw);
+    }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("load", markReady);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
-  if (done) return null;
+
+  if (gone) return null;
+
   return (
-    <motion.div
+    <div
       aria-hidden
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 0 }}
-      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 2 }}
-      onAnimationComplete={() => setDone(true)}
-      className="pointer-events-none fixed inset-0 z-[90] grid place-items-center bg-black"
+      className="pointer-events-none fixed inset-0 z-[90] bg-black"
+      style={{ opacity: fading ? 0 : 1, transition: "opacity .65s cubic-bezier(.22,1,.36,1)" }}
     >
-      <div className="flex flex-col items-center gap-5">
-        <motion.span
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
-          className="font-sfm text-[clamp(20px,1.8vw,32px)] tracking-[0.35em] text-white/80"
-        >
-          ARYA
-        </motion.span>
-        <div className="h-px w-[min(220px,50vw)] overflow-hidden bg-white/15">
-          <motion.div
-            className="h-full origin-left bg-white/80"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-          />
+      <canvas ref={canvasRef} className="absolute inset-0 block size-full" />
+      <div className="absolute inset-x-0 bottom-[clamp(44px,9vh,120px)] flex flex-col items-center gap-3">
+        <div className="relative h-px w-[min(240px,60vw)] bg-white/12">
+          <div ref={barRef} className="absolute inset-y-0 left-0 bg-white/80" style={{ width: "0%" }} />
         </div>
+        <span ref={pctRef} className="font-sfm text-[clamp(12px,1.1vw,16px)] tabular-nums text-white/60">
+          0%
+        </span>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
