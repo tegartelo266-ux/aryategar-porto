@@ -240,6 +240,11 @@ export function StarField() {
 /** Quick cinematic fade-from-black with the name mark on first load. */
 export function IntroCurtain() {
   const [done, setDone] = useState(false);
+  useEffect(() => {
+    // Safety net: remove the curtain after the intro even if rAF is throttled.
+    const t = setTimeout(() => setDone(true), 3200);
+    return () => clearTimeout(t);
+  }, []);
   if (done) return null;
   return (
     <motion.div
