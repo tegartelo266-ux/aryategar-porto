@@ -58,13 +58,13 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
               fade={open ? 0 : 0.75}
               radius={150}
               amp={8}
-              className={`block font-sfm leading-[1.2] transition-[font-size] duration-500 ease-[var(--ease-lux)] ${
+              className={`block font-sfm leading-[1.2] transition-[font-size] duration-[800ms] ease-[var(--ease-lux)] ${
                 open ? "text-[clamp(22px,1.98vw,38px)]" : "text-[clamp(26px,3.33vw,64px)]"
               }`}
             />
             <div
               id={`exp-${index}`}
-              className={`grid transition-[grid-template-rows] duration-500 ease-[var(--ease-lux)] ${
+              className={`grid transition-[grid-template-rows] duration-[800ms] ease-[var(--ease-lux)] ${
                 open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >
@@ -76,8 +76,8 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
                   {item.tags.map((t, i) => (
                     <span
                       key={t}
-                      style={{ transitionDelay: open ? `${0.12 + i * 0.06}s` : "0s" }}
-                      className={`rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink transition-all duration-500 ease-[var(--ease-lux)] ${
+                      style={{ transitionDelay: open ? `${0.18 + i * 0.07}s` : "0s" }}
+                      className={`rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink transition-all duration-[600ms] ease-[var(--ease-lux)] ${
                         open ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
                       }`}
                     >
