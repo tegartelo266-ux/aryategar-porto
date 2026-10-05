@@ -340,7 +340,7 @@ const works: CaseStudyData[] = [
       { v: "2 taps", l: "From browsing to first bid" },
       { v: "1 system", l: "Reusable card components" },
     ],
-    gallery: ["4fd8b", "8923f"],
+    related: ["Cloud Storage V2", "Sales Dashboard"],
   },
   {
     t: "Cloud Storage V2",
@@ -363,7 +363,7 @@ const works: CaseStudyData[] = [
       { v: "-40%", l: "Fewer steps to share a file" },
       { v: "1 library", l: "Reusable UI components" },
     ],
-    gallery: ["d84b4", "99f2a"],
+    related: ["Sales Dashboard", "NFT Market App"],
   },
   {
     t: "Sales Dashboard",
@@ -385,7 +385,7 @@ const works: CaseStudyData[] = [
       { v: "5 metrics", l: "Visible above the fold" },
       { v: "1 screen", l: "Daily overview" },
     ],
-    gallery: ["8923f", "d84b4"],
+    related: ["Cloud Storage V2", "NFT Market App"],
   },
   {
     t: "Health Tracker V1",
@@ -406,7 +406,7 @@ const works: CaseStudyData[] = [
       { v: "3 metrics", l: "In a single view" },
       { v: "1 tap", l: "To log an activity" },
     ],
-    gallery: ["b4ae5", "fe973"],
+    related: ["Health Tracker V2", "WhatsApp Redesign"],
   },
   {
     t: "Health Tracker V2",
@@ -427,7 +427,7 @@ const works: CaseStudyData[] = [
       { v: "2 levels", l: "Simple and advanced" },
       { v: "V2", l: "Higher clarity and contrast" },
     ],
-    gallery: ["fe973", "b4ae5"],
+    related: ["Health Tracker V1", "WhatsApp Redesign"],
   },
   {
     t: "WhatsApp Redesign",
@@ -448,7 +448,7 @@ const works: CaseStudyData[] = [
       { v: "New IA", l: "Cleaner navigation" },
       { v: "Dark mode", l: "Better readability" },
     ],
-    gallery: ["whatsapp1.png"],
+    related: ["Health Tracker V2", "NFT Market App"],
   },
 ];
 
@@ -556,7 +556,15 @@ export function Portfolio() {
         </div>
       </motion.div>
 
-      <CaseStudy work={active !== null ? works[active] : null} onClose={() => setActive(null)} />
+      <CaseStudy
+        work={active !== null ? works[active] : null}
+        works={works}
+        onSelect={(title) => {
+          const idx = works.findIndex((w) => w.t === title);
+          if (idx >= 0) setActive(idx);
+        }}
+        onClose={() => setActive(null)}
+      />
     </section>
   );
 }

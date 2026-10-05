@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { HoverText } from "./fx";
 import { asset } from "../lib/asset";
 
@@ -14,7 +14,7 @@ export type CaseStudyData = {
   process: string[];
   solution: string;
   result: { v: string; l: string }[];
-  gallery: string[];
+  related: string[];
 };
 
 function Label({ children }: { children: ReactNode }) {
@@ -30,9 +30,20 @@ function Block({ label, body }: { label: string; body: string }) {
   );
 }
 
-export default function CaseStudy({ work, onClose }: { work: CaseStudyData | null; onClose: () => void }) {
+export default function CaseStudy({
+  work,
+  works,
+  onSelect,
+  onClose,
+}: {
+  work: CaseStudyData | null;
+  works: CaseStudyData[];
+  onSelect: (title: string) => void;
+  onClose: () => void;
+}) {
   const [current, setCurrent] = useState<CaseStudyData | null>(null);
   const [shown, setShown] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (work) {
@@ -44,6 +55,10 @@ export default function CaseStudy({ work, onClose }: { work: CaseStudyData | nul
     const t = setTimeout(() => setCurrent(null), 400);
     return () => clearTimeout(t);
   }, [work]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [current?.t]);
 
   useEffect(() => {
     if (!current) return;
@@ -59,10 +74,17 @@ export default function CaseStudy({ work, onClose }: { work: CaseStudyData | nul
     };
   }, [current, onClose]);
 
+  const related = current
+    ? (current.related ?? [])
+        .map((t) => works.find((w) => w.t === t))
+        .filter((w): w is CaseStudyData => !!w)
+    : [];
+
   if (!current) return null;
 
   return (
     <div
+      ref={scrollRef}
       role="dialog"
       aria-modal="true"
       aria-label={`${current.t} case study`}
@@ -154,13 +176,35 @@ export default function CaseStudy({ work, onClose }: { work: CaseStudyData | nul
             </div>
           </div>
 
-          <div className="grid gap-[clamp(16px,1.5vw,24px)] sm:grid-cols-2">
-            {current.gallery.map((g, i) => (
-              <div key={i} className="aspect-[4/3] overflow-hidden rounded-[24px] bg-neutral-900">
-                <img src={asset(g)} alt="" loading="lazy" className="size-full object-cover" />
+          {related.length > 0 && (
+            <div className="flex flex-col gap-6">
+              <Label>More projects</Label>
+              <div className="grid gap-[clamp(16px,1.5vw,24px)] sm:grid-cols-2">
+                {related.map((rw) => (
+                  <button
+                    key={rw.t}
+                    type="button"
+                    onClick={() => onSelect(rw.t)}
+                    className="group/more relative aspect-[4/3] overflow-hidden rounded-[24px] bg-neutral-900 text-left"
+                  >
+                    <img
+                      src={asset(rw.img)}
+                      alt={rw.t}
+                      loading="lazy"
+                      className="size-full object-cover transition-transform duration-[900ms] ease-[var(--ease-lux)] group-hover/more:scale-110"
+                    />
+                    <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-[clamp(14px,1.4vw,24px)]">
+                      <span className="font-sfm text-[clamp(15px,1.25vw,22px)] text-white">{rw.t}</span>
+                      <span className="inline-flex items-center gap-2 font-sfr text-[clamp(12px,1vw,16px)] text-white/70 transition-colors duration-500 group-hover/more:text-white">
+                        View <span aria-hidden>→</span>
+                      </span>
+                    </span>
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
           <a
             href="#contact"
