@@ -104,7 +104,7 @@ export default function CaseStudy({
           type="button"
           onClick={onClose}
           aria-label="Close case study"
-          className="glass absolute right-[clamp(16px,2vw,28px)] top-[clamp(16px,2vw,28px)] z-20 grid size-[clamp(42px,3.2vw,56px)] place-items-center rounded-full"
+          className="absolute right-[clamp(16px,2vw,28px)] top-[clamp(16px,2vw,28px)] z-20 grid size-[clamp(42px,3.2vw,56px)] place-items-center rounded-full border border-white/25 bg-black/60 text-white shadow-[0_8px_30px_-8px_rgba(0,0,0,0.8)] backdrop-blur-md transition-colors duration-300 hover:bg-black/80"
         >
           <span className="relative block size-5">
             <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-white" />
