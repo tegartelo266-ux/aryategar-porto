@@ -336,7 +336,8 @@ export function HoverText({
         style={{
           opacity: inView ? 1 : 0,
           transform: inView ? "none" : "translate3d(0,.45em,0) rotate(3deg)",
-          transition: `opacity .8s ${myDelay}s var(--ease-lux), transform .9s ${myDelay}s var(--ease-lux)`,
+          filter: inView ? "blur(0px)" : "blur(6px)",
+          transition: `opacity .8s ${myDelay}s var(--ease-lux), transform .9s ${myDelay}s var(--ease-lux), filter .8s ${myDelay}s var(--ease-lux)`,
         }}
       >
         <span className="inline-block will-change-transform" style={{ opacity: base }}>
@@ -462,10 +463,10 @@ export function Reveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y, filter: "blur(8px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay }}
     >
       {children}
     </motion.div>

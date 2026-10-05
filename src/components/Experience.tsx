@@ -58,7 +58,7 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
               fade={open ? 0 : 0.75}
               radius={150}
               amp={8}
-              className={`block font-sfm leading-[1.2] ${
+              className={`block font-sfm leading-[1.2] transition-[font-size] duration-500 ease-[var(--ease-lux)] ${
                 open ? "text-[clamp(22px,1.98vw,38px)]" : "text-[clamp(26px,3.33vw,64px)]"
               }`}
             />
@@ -73,10 +73,13 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
                   {item.text}
                 </div>
                 <div className="flex flex-wrap gap-2 pb-2 pt-5">
-                  {item.tags.map((t) => (
+                  {item.tags.map((t, i) => (
                     <span
                       key={t}
-                      className="rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink"
+                      style={{ transitionDelay: open ? `${0.12 + i * 0.06}s` : "0s" }}
+                      className={`rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink transition-all duration-500 ease-[var(--ease-lux)] ${
+                        open ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                      }`}
                     >
                       {t}
                     </span>
