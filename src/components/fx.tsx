@@ -242,7 +242,7 @@ export function StarField() {
  * progress bar + counter. Adaptive — it finishes once the page is ready
  * (fonts/images) but never before MIN, and never after MAX.
  */
-export function IntroCurtain() {
+export function IntroCurtain({ onLeave }: { onLeave?: () => void }) {
   const [gone, setGone] = useState(false);
   const [fading, setFading] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -261,6 +261,8 @@ export function IntroCurtain() {
     const start = performance.now();
     let ready = false;
     let finished = false;
+    let leaving = false;
+    let leaveStart = 0;
     let raf = 0;
     let cw = 0;
     let ch = 0;
@@ -272,8 +274,11 @@ export function IntroCurtain() {
     const finish = () => {
       if (finished) return;
       finished = true;
+      leaving = true;
+      leaveStart = performance.now();
       setFading(true);
-      window.setTimeout(() => setGone(true), 700);
+      onLeave?.();
+      window.setTimeout(() => setGone(true), 850);
     };
 
     const markReady = () => {
@@ -336,6 +341,19 @@ export function IntroCurtain() {
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
     const draw = (now: number) => {
+      if (leaving) {
+        const l = Math.min(1, (now - leaveStart) / 850);
+        ctx.clearRect(0, 0, cw, ch);
+        for (const q of parts) {
+          q.x += (q.x - cw / 2) * 0.06;
+          q.y += (q.y - ch / 2) * 0.06;
+          ctx.fillStyle = `rgba(255,255,255,${(0.9 * (1 - l)).toFixed(3)})`;
+          ctx.fillRect(q.x, q.y, q.s, q.s);
+        }
+        if (l < 1) raf = requestAnimationFrame(draw);
+        return;
+      }
+
       const elapsed = now - start;
       const p = Math.min(1, elapsed / MIN);
       const ep = easeOut(p);
@@ -355,7 +373,6 @@ export function IntroCurtain() {
 
       if ((ready && elapsed >= MIN) || elapsed >= MAX) {
         finish();
-        return;
       }
       raf = requestAnimationFrame(draw);
     };
@@ -368,6 +385,8 @@ export function IntroCurtain() {
     };
     window.addEventListener("resize", onResize);
 
+    const safety = window.setTimeout(finish, MAX + 300);
+
     if (reduce) {
       finish();
     } else {
@@ -376,6 +395,7 @@ export function IntroCurtain() {
 
     return () => {
       cancelAnimationFrame(raf);
+      window.clearTimeout(safety);
       window.removeEventListener("load", markReady);
       window.removeEventListener("resize", onResize);
     };
