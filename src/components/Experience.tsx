@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { GradientTitle, HoverText, Pill, Reveal } from "./fx";
 
 const items = [
@@ -55,41 +54,36 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
             <HoverText
               as="span"
               text={item.title}
+              by="word"
               fade={open ? 0 : 0.75}
               radius={150}
               amp={8}
-              className={`block font-sfm leading-[1.2] transition-[font-size] duration-700 ease-[var(--ease-lux)] ${
+              className={`block font-sfm leading-[1.2] ${
                 open ? "text-[clamp(22px,1.98vw,38px)]" : "text-[clamp(26px,3.33vw,64px)]"
               }`}
             />
-            <AnimatePresence initial={false}>
-              {open && (
-                <motion.div
-                  id={`exp-${index}`}
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-[clamp(10px,1vw,18px)] font-sfr text-[clamp(15px,1.67vw,32px)] leading-[1.2] text-[#434343]">
-                    {item.text}
-                  </div>
-                  <div className="flex flex-wrap gap-2 pb-2 pt-5">
-                    {item.tags.map((t, i) => (
-                      <motion.span
-                        key={t}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0, transition: { delay: 0.25 + i * 0.08 } }}
-                        className="rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink"
-                      >
-                        {t}
-                      </motion.span>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div
+              id={`exp-${index}`}
+              className={`grid transition-[grid-template-rows] duration-500 ease-[var(--ease-lux)] ${
+                open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="pt-[clamp(10px,1vw,18px)] font-sfr text-[clamp(15px,1.67vw,32px)] leading-[1.2] text-[#434343]">
+                  {item.text}
+                </div>
+                <div className="flex flex-wrap gap-2 pb-2 pt-5">
+                  {item.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-[clamp(12px,1.5vw,28px)] sm:pt-1">
             <span className="whitespace-nowrap font-sfm text-[clamp(28px,4.17vw,80px)] leading-[1.2]">

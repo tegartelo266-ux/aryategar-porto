@@ -83,6 +83,8 @@ export default function HeroObject({ className = "" }: { className?: string }) {
     let cw = 0;
     let ch = 0;
     let dpr = 1;
+    let running = false;
+    let visible = true;
 
     const onPointer = (e: PointerEvent) => {
       pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -164,22 +166,50 @@ export default function HeroObject({ className = "" }: { className?: string }) {
         ctx.fill();
       }
 
-      if (!reduce) raf = requestAnimationFrame(draw);
+      if (running) raf = requestAnimationFrame(draw);
     };
 
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(parent);
 
+    let io: IntersectionObserver | null = null;
+    let onVis: (() => void) | null = null;
+
+    const start = () => {
+      if (reduce || running) return;
+      running = true;
+      raf = requestAnimationFrame(draw);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
     if (reduce) {
       draw(performance.now());
     } else {
-      raf = requestAnimationFrame(draw);
+      io = new IntersectionObserver(
+        (entries) => {
+          visible = entries[0]?.isIntersecting ?? false;
+          if (visible && !document.hidden) start();
+          else stop();
+        },
+        { rootMargin: "200px 0px" },
+      );
+      io.observe(parent);
+      onVis = () => {
+        if (document.hidden) stop();
+        else if (visible) start();
+      };
+      document.addEventListener("visibilitychange", onVis);
     }
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io?.disconnect();
+      if (onVis) document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("pointermove", onPointer);
     };
   }, []);
