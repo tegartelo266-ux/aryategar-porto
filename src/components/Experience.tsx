@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "motion/react";
 import { GradientTitle, HoverText, Pill, Reveal } from "./fx";
 
 const items = [
@@ -74,15 +75,15 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
                 </div>
                 <div className="flex flex-wrap gap-2 pb-2 pt-5">
                   {item.tags.map((t, i) => (
-                    <span
+                    <motion.span
                       key={t}
-                      style={{ transitionDelay: open ? `${0.16 + i * 0.11}s` : "0s" }}
-                      className={`rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink will-change-transform transition-[transform,opacity] duration-[500ms] ease-[var(--ease-lux)] motion-reduce:transition-none ${
-                        open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-                      }`}
+                      initial={false}
+                      animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: open ? 0.3 + i * 0.1 : 0 }}
+                      className="rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink"
                     >
                       {t}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
               </div>
