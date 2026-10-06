@@ -64,7 +64,7 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
             />
             <div
               id={`exp-${index}`}
-              className={`grid transition-[grid-template-rows] duration-[800ms] ease-[var(--ease-lux)] ${
+              className={`grid transition-[grid-template-rows] duration-[800ms] ease-[var(--ease-lux)] motion-reduce:transition-none ${
                 open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >
@@ -76,9 +76,9 @@ function Row({ item, open, onToggle, index }: { item: (typeof items)[number]; op
                   {item.tags.map((t, i) => (
                     <span
                       key={t}
-                      style={{ transitionDelay: open ? `${0.18 + i * 0.07}s` : "0s" }}
-                      className={`rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink transition-all duration-[600ms] ease-[var(--ease-lux)] ${
-                        open ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                      style={{ transitionDelay: open ? `${0.16 + i * 0.11}s` : "0s" }}
+                      className={`rounded-full border border-ink/25 px-4 py-1.5 font-sfr text-[clamp(13px,1vw,18px)] text-ink will-change-transform transition-[transform,opacity] duration-[500ms] ease-[var(--ease-lux)] motion-reduce:transition-none ${
+                        open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                       }`}
                     >
                       {t}
