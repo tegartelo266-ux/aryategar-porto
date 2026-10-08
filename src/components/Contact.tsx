@@ -22,7 +22,10 @@ function Badge({ emoji, className, size, rot, px, py, depth }: { emoji: string; 
 
 export function Contact() {
   const [sent, setSent] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [topic, setTopic] = useState("Freelance");
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const px = useSpring(mx, { stiffness: 60, damping: 16 });
@@ -32,7 +35,8 @@ export function Contact() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (email.trim()) setSent(true);
+    // Design preview only: not wired to email yet.
+    if (email.trim() && message.trim()) setSent(true);
   };
 
   return (
@@ -59,7 +63,7 @@ export function Contact() {
           <Reveal delay={0.2}>
             <p className="max-w-[865px] font-sfr text-[clamp(17px,1.98vw,38px)] leading-[1.4] text-[#a7a7a7]">
               I regularly post my thoughts on{" "}
-              <a href="https://dribbble.com/aryatgra" target="_blank" rel="noopener noreferrer" className={underline}>
+              <a href="https://dribbble.com/aryategar/shots" target="_blank" rel="noopener noreferrer" className={underline}>
                 Dribbble
               </a>
               , and also on{" "}
@@ -81,33 +85,80 @@ export function Contact() {
           <Reveal delay={0.3}>
             <form
               onSubmit={submit}
-              className="mt-2 flex h-[clamp(62px,4.5vw,86px)] w-full max-w-[832px] items-center justify-between gap-2 rounded-full border border-[#e4e7ec] bg-[#3b3b3b] p-[clamp(8px,0.73vw,14px)] backdrop-blur-[7.5px] transition-shadow duration-500 focus-within:shadow-[0_0_0_4px_rgba(255,255,255,0.18)]"
+              className="mt-2 flex w-full max-w-[860px] flex-col gap-[clamp(14px,1.3vw,20px)] rounded-[clamp(24px,2vw,32px)] border border-white/12 bg-white/[0.04] p-[clamp(18px,1.8vw,32px)] backdrop-blur-md"
             >
-              <label className="flex min-w-0 flex-1 items-center gap-[clamp(10px,1.3vw,17px)]">
-                <span className="grid h-[clamp(40px,3vw,58px)] w-[clamp(44px,3.3vw,64px)] shrink-0 place-items-center rounded-full bg-white">
-                  <img src="/assets/d536d.svg" alt="" className="size-[clamp(20px,1.67vw,32px)]" />
-                </span>
-                <input
-                  type="email"
+              <div className="grid gap-[clamp(12px,1.2vw,18px)] sm:grid-cols-2">
+                <label className="flex flex-col gap-2">
+                  <span className="font-sfr text-[clamp(11px,0.9vw,14px)] uppercase tracking-[0.16em] text-white/45">Name</span>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setSent(false);
+                    }}
+                    placeholder="Your name"
+                    className="rounded-2xl border border-white/12 bg-black/30 px-[clamp(14px,1.2vw,20px)] py-[clamp(10px,0.9vw,15px)] font-sfr text-[clamp(15px,1.1vw,19px)] text-white outline-none transition-colors duration-300 placeholder:text-white/35 focus:border-white/40"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="font-sfr text-[clamp(11px,0.9vw,14px)] uppercase tracking-[0.16em] text-white/45">Email</span>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setSent(false);
+                    }}
+                    placeholder="you@email.com"
+                    className="rounded-2xl border border-white/12 bg-black/30 px-[clamp(14px,1.2vw,20px)] py-[clamp(10px,0.9vw,15px)] font-sfr text-[clamp(15px,1.1vw,19px)] text-white outline-none transition-colors duration-300 placeholder:text-white/35 focus:border-white/40"
+                  />
+                </label>
+              </div>
+
+              <label className="flex flex-col gap-2">
+                <span className="font-sfr text-[clamp(11px,0.9vw,14px)] uppercase tracking-[0.16em] text-white/45">Message</span>
+                <textarea
                   required
-                  value={email}
+                  rows={4}
+                  value={message}
                   onChange={(e) => {
-                    setEmail(e.target.value);
+                    setMessage(e.target.value);
                     setSent(false);
                   }}
-                  placeholder="Enter Email Address"
-                  aria-label="Email address"
-                  className="min-w-0 flex-1 bg-transparent font-sfm text-[clamp(15px,1.46vw,28px)] tracking-[-0.42px] text-white outline-none placeholder:text-white"
+                  placeholder="Tell me about your project or what you need..."
+                  className="resize-none rounded-2xl border border-white/12 bg-black/30 px-[clamp(14px,1.2vw,20px)] py-[clamp(10px,0.9vw,15px)] font-sfr text-[clamp(15px,1.1vw,19px)] leading-[1.5] text-white outline-none transition-colors duration-300 placeholder:text-white/35 focus:border-white/40"
                 />
               </label>
-              <Magnetic strength={0.25}>
-                <button
-                  type="submit"
-                  className="rounded-full bg-white px-[clamp(20px,2.1vw,40px)] py-[clamp(12px,1.04vw,20px)] font-sfm text-[clamp(14px,1.25vw,24px)] tracking-[-0.36px] text-ink transition-transform duration-500 hover:scale-105"
-                >
-                  {sent ? "Sent ✓" : "Send"}
-                </button>
-              </Magnetic>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {["Freelance", "Full-time", "Collaboration"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTopic(t)}
+                    className={`rounded-full border px-[clamp(14px,1.2vw,20px)] py-[clamp(7px,0.6vw,10px)] font-sfr text-[clamp(12px,0.95vw,16px)] transition-colors duration-300 ${
+                      topic === t ? "border-white bg-white text-ink" : "border-white/20 text-white/70 hover:border-white/50"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="font-sfr text-[clamp(11px,0.9vw,14px)] text-white/40">No spam — I'll reply to your email.</span>
+                <Magnetic strength={0.25}>
+                  <button
+                    type="submit"
+                    className="rounded-full bg-white px-[clamp(20px,2.1vw,40px)] py-[clamp(12px,1.04vw,20px)] font-sfm text-[clamp(14px,1.25vw,24px)] tracking-[-0.36px] text-ink transition-transform duration-500 hover:scale-105"
+                  >
+                    {sent ? "Message sent ✓" : "Send message"}
+                  </button>
+                </Magnetic>
+              </div>
             </form>
           </Reveal>
         </div>
