@@ -5,6 +5,10 @@ import { HoverText, Magnetic, Reveal } from "./fx";
 const underline =
   "underline decoration-white/40 underline-offset-[6px] transition-colors duration-500 hover:text-white hover:decoration-white";
 
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+// Dapatkan access key gratis di https://web3forms.com (masukkan emailmu), lalu paste di sini.
+const WEB3FORMS_KEY = "d152717e-ac15-48b5-b6b4-226eda8d20dd";
+
 function Badge({ emoji, className, size, rot, px, py, depth }: { emoji: string; className: string; size: string; rot: number; px: any; py: any; depth: number }) {
   const x = useTransform(px, (v: number) => v * depth);
   const y = useTransform(py, (v: number) => v * depth);
@@ -21,7 +25,7 @@ function Badge({ emoji, className, size, rot, px, py, depth }: { emoji: string; 
 }
 
 export function Contact() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -33,10 +37,32 @@ export function Contact() {
   const avX = useTransform(px, (v) => v * -14);
   const avY = useTransform(py, (v) => v * -14);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    // Design preview only: not wired to email yet.
-    if (email.trim() && message.trim()) setSent(true);
+    if (!email.trim() || !message.trim()) return;
+    if (!WEB3FORMS_KEY) {
+      setStatus("done");
+      return;
+    }
+    setStatus("sending");
+    try {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `New portfolio inquiry — ${topic}`,
+          name: name || "Portfolio visitor",
+          email,
+          topic,
+          message,
+        }),
+      });
+      const data = await res.json();
+      setStatus(data.success ? "done" : "error");
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (
@@ -96,7 +122,7 @@ export function Contact() {
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
-                      setSent(false);
+                      setStatus("idle");
                     }}
                     placeholder="Your name"
                     className="rounded-2xl border border-white/12 bg-black/30 px-[clamp(14px,1.2vw,20px)] py-[clamp(10px,0.9vw,15px)] font-sfr text-[clamp(15px,1.1vw,19px)] text-white outline-none transition-colors duration-300 placeholder:text-white/35 focus:border-white/40"
@@ -110,7 +136,7 @@ export function Contact() {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      setSent(false);
+                      setStatus("idle");
                     }}
                     placeholder="you@email.com"
                     className="rounded-2xl border border-white/12 bg-black/30 px-[clamp(14px,1.2vw,20px)] py-[clamp(10px,0.9vw,15px)] font-sfr text-[clamp(15px,1.1vw,19px)] text-white outline-none transition-colors duration-300 placeholder:text-white/35 focus:border-white/40"
@@ -126,7 +152,7 @@ export function Contact() {
                   value={message}
                   onChange={(e) => {
                     setMessage(e.target.value);
-                    setSent(false);
+                    setStatus("idle");
                   }}
                   placeholder="Tell me about your project or what you need..."
                   className="resize-none rounded-2xl border border-white/12 bg-black/30 px-[clamp(14px,1.2vw,20px)] py-[clamp(10px,0.9vw,15px)] font-sfr text-[clamp(15px,1.1vw,19px)] leading-[1.5] text-white outline-none transition-colors duration-300 placeholder:text-white/35 focus:border-white/40"
@@ -149,13 +175,22 @@ export function Contact() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="font-sfr text-[clamp(11px,0.9vw,14px)] text-white/40">No spam — I'll reply to your email.</span>
+                <span className="font-sfr text-[clamp(11px,0.9vw,14px)] text-white/40">
+                  {status === "error" ? "Something went wrong — please try again." : "No spam — I'll reply to your email."}
+                </span>
                 <Magnetic strength={0.25}>
                   <button
                     type="submit"
-                    className="rounded-full bg-white px-[clamp(20px,2.1vw,40px)] py-[clamp(12px,1.04vw,20px)] font-sfm text-[clamp(14px,1.25vw,24px)] tracking-[-0.36px] text-ink transition-transform duration-500 hover:scale-105"
+                    disabled={status === "sending"}
+                    className="rounded-full bg-white px-[clamp(20px,2.1vw,40px)] py-[clamp(12px,1.04vw,20px)] font-sfm text-[clamp(14px,1.25vw,24px)] tracking-[-0.36px] text-ink transition-transform duration-500 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {sent ? "Message sent ✓" : "Send message"}
+                    {status === "sending"
+                      ? "Sending…"
+                      : status === "done"
+                        ? "Message sent ✓"
+                        : status === "error"
+                          ? "Try again"
+                          : "Send message"}
                   </button>
                 </Magnetic>
               </div>
